@@ -90,30 +90,36 @@ final boardGamesListControllerProvider = StateNotifierProvider<BoardGameList, As
 
 
 class BoardGameList extends StateNotifier<AsyncValue<List<BoardGame>>> {
-  BoardGameList(AsyncValue<List<BoardGame>> items, this.ref) : super(items){
-    init();
-  }
+  	BoardGameList(AsyncValue<List<BoardGame>> items, this.ref) : super(items){
+    	init();
+  	}
 
-  final Ref ref;
+  	inal Ref ref;
 
-  Future<void> init() async {
-    state = const AsyncValue.loading();
-    try {
-      final search = await ref.watch(boardGamesListProvider('').future);
-      state = AsyncValue.data(search);
-    } catch (e) {
-      state = AsyncValue.error(e);
-    }
-  }
+  	Future<void> init() async {
+    	state = const AsyncValue.loading();
+    	try {
+      		final search = await ref.watch(boardGamesListProvider('').future);
+      		state = AsyncValue.data(search);
+    	} catch (e) {
+      		state = AsyncValue.error(e);
+    	}
+  	}
 
-  Future<void> search(String request) async {
-    state = const AsyncValue.loading();
-    try {
-      final search = await ref.watch(boardGamesListProvider(request).future);
-      state = AsyncValue.data(search);
-    } catch (e) {
-      state = AsyncValue.error(e);
-    }
-  }
+  	Future<void> search(String request) async {
+    	state = const AsyncValue.loading();
+    	try {
+      		final search = await ref.watch(boardGamesListProvider(request).future);
+      		state = AsyncValue.data(search);
+    	} catch (e) {
+      		state = AsyncValue.error(e);
+    	}
+  	}
 }
 ```
+
+Source: [Stackoverflow](https://stackoverflow.com/questions/73996504/flutter-riverpod-statenotifierprovider-async-value-still-loading)
+
+### ChangeNotifierProvider
+
+- Dont care about this, riverpod was born to eliminate using this one
