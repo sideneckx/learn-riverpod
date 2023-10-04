@@ -1,20 +1,5 @@
 # riverpod_testing
 
-A new Flutter project.
-
-## Getting Started
-
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
-
 ## Provider type
 
 - How to get value of a provider:
@@ -26,7 +11,11 @@ final model = ref.watch(aProvider);
 - How to update state of a provider:
 
 ```dart
-ref.read(aNotifier).doSomething();
+///In case of `StateNotifyProvider`
+ref.read(aProvider.notifier).increase(by: 1);
+
+///In case of `StateProvider`
+ref.read(counterGetSetProvider.notifier).state++;
 ```
 
 - How to refresh a part of screen instead of whole screen
@@ -48,11 +37,11 @@ Consumer(
 
 ### [Provider](https://riverpod.dev/docs/providers/provider)
 
-- It just a getter state (cant change its state)
+- It just a **getter** state (cant change its state)
 
 ### [FutureProvider](https://riverpod.dev/docs/providers/future_provider)
 
-- The same as `Provider` but its for async state
+- The same as `Provider` (just a **getter**) but its for async state
 - It have 3 state loading, got state and error
 
 ```dart
@@ -83,7 +72,7 @@ Consumer(
 
 ### [StateProvider](https://riverpod.dev/docs/providers/state_provider)
 
-- It a setter / getter of a simple state (int, bool, string, enum...)
+- It a setter / getter of a simple state (`int`, `bool`, `string`, `enum`...)
 - A simpler version of `StateNotifierProvider`
 
 ### [StateNotifierProvider](https://riverpod.dev/docs/providers/state_notifier_provider)
@@ -91,3 +80,40 @@ Consumer(
 - A `StateProvider` but its state can a an object
 - `StateNotifierProvider` have two generic `<TheNotifier, TheModelThatWillBeNotified>`
 - `TheNotifier` is subclass of `StateNotifier<TheModelThatWillBeNotified>`, which contain all of logic code to update state
+
+> if you want a `FutureProvider` but it can change its state, use `StateNotifierProvider` with `StateNotifier<AsyncValue<T>>`
+
+```dart
+final boardGamesListControllerProvider = StateNotifierProvider<BoardGameList, AsyncValue<List<BoardGame>>>((ref) {
+  	return BoardGameList(const AsyncValue.data([]), ref);
+});
+
+
+class BoardGameList extends StateNotifier<AsyncValue<List<BoardGame>>> {
+  BoardGameList(AsyncValue<List<BoardGame>> items, this.ref) : super(items){
+    init();
+  }
+
+  final Ref ref;
+
+  Future<void> init() async {
+    state = const AsyncValue.loading();
+    try {
+      final search = await ref.watch(boardGamesListProvider('').future);
+      state = AsyncValue.data(search);
+    } catch (e) {
+      state = AsyncValue.error(e);
+    }
+  }
+
+  Future<void> search(String request) async {
+    state = const AsyncValue.loading();
+    try {
+      final search = await ref.watch(boardGamesListProvider(request).future);
+      state = AsyncValue.data(search);
+    } catch (e) {
+      state = AsyncValue.error(e);
+    }
+  }
+}
+```
